@@ -44,16 +44,18 @@ namespace RemoveOfficeWebAddin
 
             // build the List from the data and load into array of class objects
             List<RibbonRemovalData> LobjData = new List<RibbonRemovalData>();
+            string LstrWebAddinID = LobjLines[0]; 
+            int LintCount = 0;
             foreach (string LstrLine in LobjLines)
             {
+                if (LintCount == 0) continue; // skip the first one, because it is our ID
+                LintCount++;
                 if (string.IsNullOrEmpty(LstrLine)) continue;
                 string[] LstrParts = LstrLine.Split(',');
                 LobjData.Add(new RibbonRemovalData(
                                     (RibbonRemovalData.ItemTypesEnum)Enum.Parse(typeof(RibbonRemovalData.ItemTypesEnum), LstrParts[0].Trim()),
                                     LstrParts[1].Trim(),
                                     LstrParts[2].Trim()));
-
-
             }
             // build and create a list of namespaces for each account loaded in Outlook
             // what we will do is create an entry for every account since we do not know if
@@ -65,14 +67,19 @@ namespace RemoveOfficeWebAddin
                 iCount++;
                 Outlook.PropertyAccessor propertyAccessor = account.CurrentUser.PropertyAccessor;
                 string ns = "xyz" + iCount.ToString();
-                LobjAccountUIDs.Add(ns, propertyAccessor.BinaryToString(propertyAccessor.GetProperty(PR_EMSMDB_SECTION_UID)));
+                LobjAccountUIDs.Add(ns, LstrWebAddinID + "_" + propertyAccessor.BinaryToString(propertyAccessor.GetProperty(PR_EMSMDB_SECTION_UID)));
             }
             // now build custom ribbon tabs into a list
             string LstrTabsToAdd = "";
             foreach(string LstrTab in LobjData.Where(item => item.ItemType == RibbonRemovalData.ItemTypesEnum.customtab)
                                               .Select(item => item.TabName).Distinct().ToList<string>())
             {
-                LstrTabsToAdd += "<tab id='" + LstrTab + "' visible='false' />\n";
+                // add a copy of the group for each account
+                foreach (KeyValuePair<string, string> LobjUID in LobjAccountUIDs)
+                {
+                    // <tab idQ="xyz1:Tab_5febe0ec-e536-4275-bd02-66818bf9e191_MyTab" visible="false" />
+                    LstrTabsToAdd += "<tab id='\"" + LobjUID.Key + ":" + LstrTab + "\" visible='false' />\n";
+                }
             }
             // now build the built-in tabs and add the groups
             foreach(string LstrTab in LobjData.Where(item => item.ItemType == RibbonRemovalData.ItemTypesEnum.customgroup)
