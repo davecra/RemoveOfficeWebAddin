@@ -1,9 +1,7 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<customUI xmlns="http://schemas.microsoft.com/office/2009/07/customui" onLoad="Ribbon_Load">
+<customUI xmlns:x1="159872e2-8b10-41de-8c00-17bb472e07a2_0833DD650E737A41A722EDCA9E0D8EF5" xmlns="http://schemas.microsoft.com/office/2009/07/customui" onLoad="Ribbon_Load">
   <ribbon>
-    <tabs>
-      <!--{{ADDIN_RIBBON_REMOVE_PART}}-->
-    </tabs>
+    <!--{{ADDIN_TABS_REMOVE_PART}}-->
+    <!--{{ADDIN_CONTEXTUALTABS_REMOVE_PART}}-->
   </ribbon>
 </customUI>
-
